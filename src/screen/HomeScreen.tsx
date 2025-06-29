@@ -9,7 +9,7 @@ const HomeScreen = () => {
     <View style={styles.container}>
       <Text style={styles.text}>HomeScreen</Text>
       <Wheel
-        size={300}
+        size={250}
         segments={8}
         colors={[
           "#FF6384",

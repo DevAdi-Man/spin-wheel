@@ -1,13 +1,15 @@
 import { Text, View, StyleSheet, Animated } from "react-native";
 import React, { useEffect, useRef } from "react";
-import Svg, { G, Path, Circle, Defs, LinearGradient, Stop, Text as SvgText, RadialGradient } from "react-native-svg";
+import Svg, { G, Path, Circle, Defs, LinearGradient, Stop, Text as SvgText, RadialGradient, Image as SvgImage } from "react-native-svg";
 
 type WheelProps = {
   size: number;
   segments: number;
   colors: Array<string>;
   labels?: Array<string>;
+  images?: Array<string>; // New prop for images
   showLabels?: boolean;
+  showImages?: boolean; // New prop to control image display
   spinValue?: Animated.Value;
 };
 
@@ -16,7 +18,9 @@ const Wheel: React.FC<WheelProps> = ({
   segments, 
   colors, 
   labels = [], 
+  images = [], // New images array
   showLabels = true,
+  showImages = true, // Default to show images
   spinValue 
 }) => {
   const radius = size / 2;
@@ -51,10 +55,18 @@ const Wheel: React.FC<WheelProps> = ({
 
   const getTextPosition = (index: number) => {
     const textAngle = angle * index + angle / 2;
-    const textRadius = radius * 0.7;
+    const textRadius = radius * 0.85; // Moved text outward to make room for images
     const x = radius + textRadius * Math.cos(textAngle);
     const y = radius + textRadius * Math.sin(textAngle);
     return { x, y };
+  };
+
+  const getImagePosition = (index: number) => {
+    const imageAngle = angle * index + angle / 2;
+    const imageRadius = radius * 0.55; // Position for images
+    const x = radius + imageRadius * Math.cos(imageAngle);
+    const y = radius + imageRadius * Math.sin(imageAngle);
+    return { x, y, angle: imageAngle };
   };
 
   // Casino wheel colors - alternating red/yellow
@@ -138,6 +150,38 @@ const Wheel: React.FC<WheelProps> = ({
               />
             ))}
             
+            {/* Segment Images */}
+            {showImages && images.length > 0 && Array.from({ length: segments }).map((_, i) => {
+              const imagePos = getImagePosition(i);
+              const imageUrl = images[i % images.length];
+              const imageSize = Math.min(40, size * 0.08); // Responsive image size
+              
+              if (!imageUrl) return null;
+              
+              return (
+                <G key={`image-${i}`}>
+                  {/* Image background circle for better visibility */}
+                  <Circle
+                    cx={imagePos.x}
+                    cy={imagePos.y}
+                    r={imageSize / 2 + 4}
+                    fill="#FFFFFF"
+                    fillOpacity={0.9}
+                    stroke="#333333"
+                    strokeWidth={1}
+                  />
+                  <SvgImage
+                    x={imagePos.x - imageSize / 2}
+                    y={imagePos.y - imageSize / 2}
+                    width={imageSize}
+                    height={imageSize}
+                    href={imageUrl}
+                    clipPath={`circle(${imageSize / 2}px at ${imageSize / 2}px ${imageSize / 2}px)`}
+                  />
+                </G>
+              );
+            })}
+            
             {/* Segment Labels */}
             {showLabels && labels.length > 0 && Array.from({ length: segments }).map((_, i) => {
               const textPos = getTextPosition(i);
@@ -148,7 +192,7 @@ const Wheel: React.FC<WheelProps> = ({
                   key={`text-${i}`}
                   x={textPos.x}
                   y={textPos.y}
-                  fontSize={Math.max(16, size * 0.04)}
+                  fontSize={Math.max(12, size * 0.03)} // Smaller text to accommodate images
                   fontWeight="900"
                   fill={colors.text}
                   textAnchor="middle"
