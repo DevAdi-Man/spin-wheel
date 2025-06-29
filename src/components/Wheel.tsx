@@ -1,6 +1,14 @@
 import { Text, View, StyleSheet, Animated } from "react-native";
 import React, { useEffect, useRef } from "react";
-import Svg, { G, Path, Circle, Defs, LinearGradient, Stop, Text as SvgText } from "react-native-svg";
+import Svg, {
+  G,
+  Path,
+  Circle,
+  Defs,
+  LinearGradient,
+  Stop,
+  Text as SvgText,
+} from "react-native-svg";
 
 type WheelProps = {
   size: number;
@@ -11,13 +19,13 @@ type WheelProps = {
   spinValue?: Animated.Value;
 };
 
-const Wheel: React.FC<WheelProps> = ({ 
-  size, 
-  segments, 
-  colors, 
-  labels = [], 
+const Wheel: React.FC<WheelProps> = ({
+  size,
+  segments,
+  colors,
+  labels = [],
   showLabels = true,
-  spinValue 
+  spinValue,
 }) => {
   const radius = size / 2;
   const innerRadius = radius * 0.15; // Inner circle for better look
@@ -63,7 +71,9 @@ const Wheel: React.FC<WheelProps> = ({
     const largeArcFlag = angle > Math.PI ? 1 : 0;
 
     return `
-      M ${radius + innerRadius * Math.cos(startAngle)} ${radius + innerRadius * Math.sin(startAngle)}
+      M ${radius + innerRadius * Math.cos(startAngle)} ${
+      radius + innerRadius * Math.sin(startAngle)
+    }
       L ${x1} ${y1}
       A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2}
       L ${x3} ${y3}
@@ -85,13 +95,13 @@ const Wheel: React.FC<WheelProps> = ({
     const hue = (index * 360) / segments;
     return {
       start: `hsl(${hue}, 80%, 60%)`,
-      end: `hsl(${hue}, 90%, 40%)`
+      end: `hsl(${hue}, 90%, 40%)`,
     };
   };
 
   return (
     <View style={styles.container}>
-      <Animated.View 
+      <Animated.View
         style={[
           styles.wheelContainer,
           {
@@ -99,21 +109,32 @@ const Wheel: React.FC<WheelProps> = ({
             height: size,
             transform: [
               { scale: pulseAnim },
-              ...(spinValue ? [{ rotate: spinValue.interpolate({
-                inputRange: [0, 1],
-                outputRange: ['0deg', '360deg']
-              })}] : [])
-            ]
-          }
+              ...(spinValue
+                ? [
+                    {
+                      rotate: spinValue.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: ["0deg", "360deg"],
+                      }),
+                    },
+                  ]
+                : []),
+            ],
+          },
         ]}
       >
         {/* Outer glow effect */}
-        <View style={[styles.glowEffect, { width: size + 20, height: size + 20 }]} />
-        
+        <View
+          style={[styles.glowEffect, { width: size + 20, height: size + 20 }]}
+        />
+
         <Svg width={size} height={size} style={styles.wheel}>
           <Defs>
             {Array.from({ length: segments }).map((_, i) => {
-              const gradientColors = getGradientColors(colors[i % colors.length], i);
+              const gradientColors = getGradientColors(
+                colors[i % colors.length],
+                i
+              );
               return (
                 <LinearGradient
                   key={`gradient-${i}`}
@@ -129,7 +150,7 @@ const Wheel: React.FC<WheelProps> = ({
               );
             })}
           </Defs>
-          
+
           <G>
             {/* Wheel segments */}
             {Array.from({ length: segments }).map((_, i) => (
@@ -142,29 +163,31 @@ const Wheel: React.FC<WheelProps> = ({
                 strokeLinejoin="round"
               />
             ))}
-            
+
             {/* Labels */}
-            {showLabels && labels.length > 0 && Array.from({ length: segments }).map((_, i) => {
-              const textPos = getTextPosition(i);
-              const label = labels[i % labels.length] || `${i + 1}`;
-              return (
-                <SvgText
-                  key={`text-${i}`}
-                  x={textPos.x}
-                  y={textPos.y}
-                  fontSize={size * 0.04}
-                  fontWeight="bold"
-                  fill="#ffffff"
-                  textAnchor="middle"
-                  alignmentBaseline="middle"
-                  stroke="#000000"
-                  strokeWidth={0.5}
-                >
-                  {label}
-                </SvgText>
-              );
-            })}
-            
+            {showLabels &&
+              labels.length > 0 &&
+              Array.from({ length: segments }).map((_, i) => {
+                const textPos = getTextPosition(i);
+                const label = labels[i % labels.length] || `${i + 1}`;
+                return (
+                  <SvgText
+                    key={`text-${i}`}
+                    x={textPos.x}
+                    y={textPos.y}
+                    fontSize={size * 0.04}
+                    fontWeight="bold"
+                    fill="#ffffff"
+                    textAnchor="middle"
+                    alignmentBaseline="middle"
+                    stroke="#000000"
+                    strokeWidth={0.5}
+                  >
+                    {label}
+                  </SvgText>
+                );
+              })}
+
             {/* Center circle */}
             <Circle
               cx={radius}
@@ -174,7 +197,7 @@ const Wheel: React.FC<WheelProps> = ({
               stroke="#ffffff"
               strokeWidth={4}
             />
-            
+
             {/* Center dot */}
             <Circle
               cx={radius}
@@ -185,12 +208,12 @@ const Wheel: React.FC<WheelProps> = ({
           </G>
         </Svg>
       </Animated.View>
-      
+
       {/* Pointer/Arrow */}
       <View style={[styles.pointer, { top: -35 }]}>
         <View style={styles.pointerContainer}>
-          <View style={styles.pointerBase} />
           <View style={styles.pointerTriangle} />
+          <View style={styles.pointerBase} />
         </View>
       </View>
     </View>
@@ -199,40 +222,40 @@ const Wheel: React.FC<WheelProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'relative',
+    alignItems: "center",
+    justifyContent: "center",
+    position: "relative",
   },
   wheelContainer: {
-    position: 'relative',
-    alignItems: 'center',
-    justifyContent: 'center',
+    position: "relative",
+    alignItems: "center",
+    justifyContent: "center",
   },
   glowEffect: {
-    position: 'absolute',
+    position: "absolute",
     borderRadius: 1000,
-    backgroundColor: 'rgba(255, 215, 0, 0.2)',
-    shadowColor: '#FFD700',
+    backgroundColor: "rgba(255, 215, 0, 0.2)",
+    shadowColor: "#FFD700",
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.6,
     shadowRadius: 15,
     elevation: 15,
   },
   wheel: {
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.25,
     shadowRadius: 12,
     elevation: 20,
   },
   pointer: {
-    position: 'absolute',
-    alignItems: 'center',
+    position: "absolute",
+    alignItems: "center",
     zIndex: 10,
   },
   pointerContainer: {
-    alignItems: 'center',
-    transform: [{rotate: '180deg'}]
+    alignItems: "center",
+    transform: [{ rotate: "180deg" }],
     // Remove rotation - triangle will point upward by default
   },
   pointerTriangle: {
@@ -241,10 +264,10 @@ const styles = StyleSheet.create({
     borderLeftWidth: 20,
     borderRightWidth: 20,
     borderBottomWidth: 35, // Changed from borderTopWidth to borderBottomWidth
-    borderLeftColor: 'transparent',
-    borderRightColor: 'transparent',
-    borderBottomColor: '#FF4757', // Changed from borderTopColor to borderBottomColor
-    shadowColor: '#000',
+    borderLeftColor: "transparent",
+    borderRightColor: "transparent",
+    borderBottomColor: "#FF4757", // Changed from borderTopColor to borderBottomColor
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.4,
     shadowRadius: 5,
@@ -253,10 +276,10 @@ const styles = StyleSheet.create({
   pointerBase: {
     width: 12,
     height: 25,
-    backgroundColor: '#FF4757',
+    backgroundColor: "#FF4757",
     borderRadius: 6,
     marginBottom: 2, // Base aur triangle ke beech gap
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 3,
