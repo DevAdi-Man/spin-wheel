@@ -187,7 +187,7 @@ const Wheel: React.FC<WheelProps> = ({
       </Animated.View>
       
       {/* Pointer/Arrow */}
-      <View style={[styles.pointer, { top: -20 }]}>
+      <View style={[styles.pointer, { top: -35 }]}>
         <View style={styles.pointerContainer}>
           <View style={styles.pointerBase} />
           <View style={styles.pointerTriangle} />
@@ -232,6 +232,7 @@ const styles = StyleSheet.create({
   },
   pointerContainer: {
     alignItems: 'center',
+    transform: [{rotate: '180deg'}]
     // Remove rotation - triangle will point upward by default
   },
   pointerTriangle: {
@@ -251,10 +252,10 @@ const styles = StyleSheet.create({
   },
   pointerBase: {
     width: 12,
-    height: 20,
+    height: 25,
     backgroundColor: '#FF4757',
     borderRadius: 6,
-    marginBottom: -2, // Changed from marginTop to marginBottom
+    marginBottom: 2, // Base aur triangle ke beech gap
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
