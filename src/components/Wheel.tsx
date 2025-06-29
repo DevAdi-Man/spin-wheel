@@ -1,6 +1,6 @@
 import { Text, View, StyleSheet, Animated } from "react-native";
 import React, { useEffect, useRef } from "react";
-import Svg, { G, Path, Circle, Defs, LinearGradient, Stop, Text as SvgText, RadialGradient } from "react-native-svg";
+import Svg, { G, Path, Circle, Defs, LinearGradient, Stop, Text as SvgText } from "react-native-svg";
 
 type WheelProps = {
   size: number;
@@ -20,45 +20,8 @@ const Wheel: React.FC<WheelProps> = ({
   spinValue 
 }) => {
   const radius = size / 2;
-  const innerRadius = radius * 0.15;
-  const ballRadius = 8; // Ball size on edges
+  const innerRadius = radius * 0.2;
   const angle = (2 * Math.PI) / segments;
-  const rotateAnim = useRef(new Animated.Value(0)).current;
-  const scaleAnim = useRef(new Animated.Value(1)).current;
-
-  // Continuous rotation for edge balls
-  useEffect(() => {
-    const rotate = Animated.loop(
-      Animated.timing(rotateAnim, {
-        toValue: 1,
-        duration: 8000,
-        useNativeDriver: true,
-      })
-    );
-    
-    const scale = Animated.loop(
-      Animated.sequence([
-        Animated.timing(scaleAnim, {
-          toValue: 1.03,
-          duration: 2500,
-          useNativeDriver: true,
-        }),
-        Animated.timing(scaleAnim, {
-          toValue: 1,
-          duration: 2500,
-          useNativeDriver: true,
-        }),
-      ])
-    );
-    
-    rotate.start();
-    scale.start();
-    
-    return () => {
-      rotate.stop();
-      scale.stop();
-    };
-  }, []);
 
   const createARC = (index: number) => {
     const startAngle = angle * index;
@@ -88,101 +51,52 @@ const Wheel: React.FC<WheelProps> = ({
 
   const getTextPosition = (index: number) => {
     const textAngle = angle * index + angle / 2;
-    const textRadius = radius * 0.7;
+    const textRadius = radius * 0.65;
     const x = radius + textRadius * Math.cos(textAngle);
     const y = radius + textRadius * Math.sin(textAngle);
-    return { x, y, angle: textAngle };
-  };
-
-  const getBallPosition = (index: number) => {
-    const ballAngle = (angle * index) + (angle / 2);
-    const ballDistance = radius + ballRadius + 5;
-    const x = radius + ballDistance * Math.cos(ballAngle);
-    const y = radius + ballDistance * Math.sin(ballAngle);
     return { x, y };
   };
 
-  // Premium color palette
-  const getPremiumColors = (index: number) => {
-    const premiumPalette = [
-      { start: '#FF6B6B', end: '#FF5252', accent: '#FF8A80' }, // Red
-      { start: '#4ECDC4', end: '#26A69A', accent: '#80CBC4' }, // Teal
-      { start: '#45B7D1', end: '#1976D2', accent: '#64B5F6' }, // Blue
-      { start: '#96CEB4', end: '#388E3C', accent: '#81C784' }, // Green
-      { start: '#FFEAA7', end: '#FFA000', accent: '#FFD54F' }, // Amber
-      { start: '#DDA0DD', end: '#7B1FA2', accent: '#BA68C8' }, // Purple
-      { start: '#98D8C8', end: '#00695C', accent: '#4DB6AC' }, // Cyan
-      { start: '#F7DC6F', end: '#F57C00', accent: '#FFB74D' }, // Orange
+  // Simple, clean colors
+  const getCleanColors = (index: number) => {
+    const cleanPalette = [
+      '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', 
+      '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F'
     ];
-    return premiumPalette[index % premiumPalette.length];
+    return cleanPalette[index % cleanPalette.length];
   };
 
   return (
     <View style={styles.container}>
-      {/* Outer Glow Effect */}
-      <View style={[styles.outerGlow, { width: size + 40, height: size + 40 }]} />
-      
-      {/* Main Wheel Container */}
+      {/* Main Wheel */}
       <Animated.View 
         style={[
           styles.wheelContainer,
           {
             width: size,
             height: size,
-            transform: [
-              { scale: scaleAnim },
-              ...(spinValue ? [{ rotate: spinValue.interpolate({
-                inputRange: [0, 1],
-                outputRange: ['0deg', '360deg']
-              })}] : [])
-            ]
+            transform: spinValue ? [{ rotate: spinValue.interpolate({
+              inputRange: [0, 1],
+              outputRange: ['0deg', '360deg']
+            })}] : []
           }
         ]}
       >
         <Svg width={size} height={size} style={styles.wheel}>
           <Defs>
-            {/* Segment Gradients */}
-            {Array.from({ length: segments }).map((_, i) => {
-              const colors = getPremiumColors(i);
-              return (
-                <RadialGradient
-                  key={`gradient-${i}`}
-                  id={`gradient-${i}`}
-                  cx="50%"
-                  cy="30%"
-                  r="70%"
-                >
-                  <Stop offset="0%" stopColor={colors.accent} />
-                  <Stop offset="60%" stopColor={colors.start} />
-                  <Stop offset="100%" stopColor={colors.end} />
-                </RadialGradient>
-              );
-            })}
-            
-            {/* Ball Gradients */}
-            {Array.from({ length: segments }).map((_, i) => {
-              const colors = getPremiumColors(i);
-              return (
-                <RadialGradient
-                  key={`ballGradient-${i}`}
-                  id={`ballGradient-${i}`}
-                  cx="30%"
-                  cy="30%"
-                  r="70%"
-                >
-                  <Stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.8" />
-                  <Stop offset="40%" stopColor={colors.start} />
-                  <Stop offset="100%" stopColor={colors.end} />
-                </RadialGradient>
-              );
-            })}
-            
-            {/* Center Gradient */}
-            <RadialGradient id="centerGradient" cx="50%" cy="50%" r="50%">
-              <Stop offset="0%" stopColor="#FFFFFF" />
-              <Stop offset="30%" stopColor="#ECF0F1" />
-              <Stop offset="100%" stopColor="#BDC3C7" />
-            </RadialGradient>
+            {Array.from({ length: segments }).map((_, i) => (
+              <LinearGradient
+                key={`gradient-${i}`}
+                id={`gradient-${i}`}
+                x1="0%"
+                y1="0%"
+                x2="100%"
+                y2="100%"
+              >
+                <Stop offset="0%" stopColor={getCleanColors(i)} stopOpacity="0.9" />
+                <Stop offset="100%" stopColor={getCleanColors(i)} stopOpacity="1" />
+              </LinearGradient>
+            ))}
           </Defs>
           
           <G>
@@ -193,12 +107,12 @@ const Wheel: React.FC<WheelProps> = ({
                 d={createARC(i)}
                 fill={`url(#gradient-${i})`}
                 stroke="#FFFFFF"
-                strokeWidth={3}
+                strokeWidth={4}
                 strokeLinejoin="round"
               />
             ))}
             
-            {/* Segment Labels */}
+            {/* Labels */}
             {showLabels && labels.length > 0 && Array.from({ length: segments }).map((_, i) => {
               const textPos = getTextPosition(i);
               const label = labels[i % labels.length] || `${i + 1}`;
@@ -207,39 +121,30 @@ const Wheel: React.FC<WheelProps> = ({
                   key={`text-${i}`}
                   x={textPos.x}
                   y={textPos.y}
-                  fontSize={Math.max(14, size * 0.04)}
-                  fontWeight="800"
+                  fontSize={size * 0.045}
+                  fontWeight="bold"
                   fill="#FFFFFF"
                   textAnchor="middle"
                   alignmentBaseline="middle"
-                  stroke="#2C3E50"
+                  stroke="#333333"
                   strokeWidth={1}
-                  fontFamily="System"
                 >
                   {label}
                 </SvgText>
               );
             })}
             
-            {/* Center Hub */}
+            {/* Center circle */}
             <Circle
               cx={radius}
               cy={radius}
-              r={innerRadius + 5}
-              fill="url(#centerGradient)"
-              stroke="#34495E"
+              r={innerRadius}
+              fill="#2C3E50"
+              stroke="#FFFFFF"
               strokeWidth={4}
             />
             
-            {/* Center Icon */}
-            <Circle
-              cx={radius}
-              cy={radius}
-              r={innerRadius * 0.6}
-              fill="#E74C3C"
-              stroke="#FFFFFF"
-              strokeWidth={2}
-            />
+            {/* Center dot */}
             <Circle
               cx={radius}
               cy={radius}
@@ -250,51 +155,33 @@ const Wheel: React.FC<WheelProps> = ({
         </Svg>
       </Animated.View>
       
-      {/* Edge Balls - Rotating */}
-      <Animated.View 
-        style={[
-          styles.ballsContainer,
-          {
-            width: size + (ballRadius * 4),
-            height: size + (ballRadius * 4),
-            transform: [
-              { rotate: rotateAnim.interpolate({
-                inputRange: [0, 1],
-                outputRange: ['0deg', '360deg']
-              })}
-            ]
-          }
-        ]}
-      >
-        {Array.from({ length: segments }).map((_, i) => {
-          const ballPos = getBallPosition(i);
-          const colors = getPremiumColors(i);
+      {/* Fixed Pointer - Won't rotate with wheel */}
+      <View style={styles.pointer}>
+        <View style={styles.pointerTriangle} />
+      </View>
+      
+      {/* Fixed Decorative Balls - Won't rotate with wheel */}
+      <View style={styles.fixedBallsContainer}>
+        {[0, 1, 2, 3].map((i) => {
+          const ballAngle = (Math.PI * 2 * i) / 4; // 4 balls at 90 degree intervals
+          const ballDistance = radius + 25;
+          const x = ballDistance * Math.cos(ballAngle);
+          const y = ballDistance * Math.sin(ballAngle);
+          
           return (
             <View
-              key={`ball-${i}`}
+              key={`fixed-ball-${i}`}
               style={[
-                styles.edgeBall,
+                styles.decorativeBall,
                 {
-                  left: ballPos.x - ballRadius,
-                  top: ballPos.y - ballRadius,
-                  backgroundColor: colors.start,
-                  shadowColor: colors.end,
+                  left: radius + x - 8,
+                  top: radius + y - 8,
+                  backgroundColor: getCleanColors(i * 2),
                 }
               ]}
-            >
-              <View style={[styles.ballHighlight, { backgroundColor: colors.accent }]} />
-            </View>
+            />
           );
         })}
-      </Animated.View>
-      
-      {/* Premium Pointer */}
-      <View style={styles.pointer}>
-        <View style={styles.pointerShadow} />
-        <View style={styles.pointerBody}>
-          <View style={styles.pointerGem} />
-          <View style={styles.pointerTip} />
-        </View>
       </View>
     </View>
   );
@@ -311,103 +198,53 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  outerGlow: {
-    position: 'absolute',
-    borderRadius: 1000,
-    backgroundColor: 'rgba(231, 76, 60, 0.1)',
-    shadowColor: '#E74C3C',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.6,
-    shadowRadius: 25,
-    elevation: 25,
-  },
   wheel: {
-    shadowColor: '#2C3E50',
-    shadowOffset: { width: 0, height: 15 },
-    shadowOpacity: 0.4,
-    shadowRadius: 25,
-    elevation: 30,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 15,
+    elevation: 20,
   },
-  ballsContainer: {
+  pointer: {
     position: 'absolute',
+    top: -20,
+    alignItems: 'center',
+    zIndex: 10,
+  },
+  pointerTriangle: {
+    width: 0,
+    height: 0,
+    borderLeftWidth: 18,
+    borderRightWidth: 18,
+    borderTopWidth: 30,
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+    borderTopColor: '#E74C3C',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 6,
+    elevation: 10,
+  },
+  fixedBallsContainer: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  edgeBall: {
+  decorativeBall: {
     position: 'absolute',
     width: 16,
     height: 16,
     borderRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.6,
-    shadowRadius: 8,
-    elevation: 15,
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: '#FFFFFF',
-  },
-  ballHighlight: {
-    position: 'absolute',
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    top: 2,
-    left: 2,
-    opacity: 0.8,
-  },
-  pointer: {
-    position: 'absolute',
-    top: -30,
-    alignItems: 'center',
-    zIndex: 15,
-  },
-  pointerShadow: {
-    position: 'absolute',
-    width: 60,
-    height: 60,
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    borderRadius: 30,
-    top: 8,
-  },
-  pointerBody: {
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 25,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    shadowColor: '#2C3E50',
-    shadowOffset: { width: 0, height: 8 },
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.4,
-    shadowRadius: 15,
-    elevation: 20,
-    borderWidth: 3,
-    borderColor: '#E74C3C',
-  },
-  pointerGem: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#E74C3C',
-    marginBottom: 4,
-    shadowColor: '#C0392B',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.8,
-    shadowRadius: 4,
+    shadowRadius: 5,
     elevation: 8,
-  },
-  pointerTip: {
-    width: 0,
-    height: 0,
-    borderLeftWidth: 15,
-    borderRightWidth: 15,
-    borderTopWidth: 25,
-    borderLeftColor: 'transparent',
-    borderRightColor: 'transparent',
-    borderTopColor: '#E74C3C',
-    shadowColor: '#2C3E50',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 8,
-    elevation: 12,
   },
 });
 
