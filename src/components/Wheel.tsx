@@ -21,30 +21,7 @@ const Wheel: React.FC<WheelProps> = ({
 }) => {
   const radius = size / 2;
   const innerRadius = radius * 0.12;
-  const lightRadius = radius + 15;
   const angle = (2 * Math.PI) / segments;
-  const lightCount = 24; // Number of lights around the wheel
-  const lightBlinkAnim = useRef(new Animated.Value(0)).current;
-
-  // Blinking lights animation
-  useEffect(() => {
-    const blink = Animated.loop(
-      Animated.sequence([
-        Animated.timing(lightBlinkAnim, {
-          toValue: 1,
-          duration: 800,
-          useNativeDriver: false,
-        }),
-        Animated.timing(lightBlinkAnim, {
-          toValue: 0,
-          duration: 800,
-          useNativeDriver: false,
-        }),
-      ])
-    );
-    blink.start();
-    return () => blink.stop();
-  }, []);
 
   const createARC = (index: number) => {
     const startAngle = angle * index;
@@ -80,14 +57,7 @@ const Wheel: React.FC<WheelProps> = ({
     return { x, y };
   };
 
-  const getLightPosition = (index: number) => {
-    const lightAngle = (2 * Math.PI * index) / lightCount;
-    const x = radius + lightRadius * Math.cos(lightAngle);
-    const y = radius + lightRadius * Math.sin(lightAngle);
-    return { x, y };
-  };
-
-  // Casino wheel colors - alternating red/yellow like the image
+  // Casino wheel colors - alternating red/yellow
   const getCasinoColors = (index: number) => {
     const isEven = index % 2 === 0;
     if (isEven) {
@@ -108,35 +78,10 @@ const Wheel: React.FC<WheelProps> = ({
   return (
     <View style={styles.container}>
       {/* Background Glow */}
-      <View style={[styles.backgroundGlow, { width: size + 100, height: size + 100 }]} />
+      <View style={[styles.backgroundGlow, { width: size + 60, height: size + 60 }]} />
       
-      {/* Outer Ring with Lights */}
-      <View style={[styles.outerRing, { width: size + 60, height: size + 60 }]}>
-        {/* Blinking Lights */}
-        {Array.from({ length: lightCount }).map((_, i) => {
-          const lightPos = getLightPosition(i);
-          return (
-            <Animated.View
-              key={`light-${i}`}
-              style={[
-                styles.light,
-                {
-                  left: lightPos.x - 6,
-                  top: lightPos.y - 6,
-                  opacity: lightBlinkAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [0.3, 1],
-                  }),
-                  backgroundColor: lightBlinkAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: ['#FFD700', '#FFFFFF'],
-                  }),
-                }
-              ]}
-            />
-          );
-        })}
-      </View>
+      {/* Outer Ring */}
+      <View style={[styles.outerRing, { width: size + 30, height: size + 30 }]} />
 
       {/* Main Wheel */}
       <Animated.View 
@@ -269,35 +214,22 @@ const styles = StyleSheet.create({
   backgroundGlow: {
     position: 'absolute',
     borderRadius: 1000,
-    backgroundColor: 'rgba(255, 69, 0, 0.3)',
+    backgroundColor: 'rgba(255, 69, 0, 0.2)',
     shadowColor: '#FF4500',
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 30,
-    elevation: 30,
+    shadowOpacity: 0.6,
+    shadowRadius: 20,
+    elevation: 20,
   },
   outerRing: {
     position: 'absolute',
     borderRadius: 1000,
     backgroundColor: '#8B4513',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.5,
-    shadowRadius: 20,
-    elevation: 25,
-  },
-  light: {
-    position: 'absolute',
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: '#8B4513',
-    shadowColor: '#FFD700',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 8,
-    elevation: 15,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.4,
+    shadowRadius: 15,
+    elevation: 20,
   },
   wheelContainer: {
     position: 'relative',
@@ -306,10 +238,10 @@ const styles = StyleSheet.create({
   },
   wheel: {
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 15 },
-    shadowOpacity: 0.4,
-    shadowRadius: 25,
-    elevation: 30,
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 25,
   },
   pointer: {
     position: 'absolute',
