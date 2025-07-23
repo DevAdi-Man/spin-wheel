@@ -115,32 +115,32 @@ const ReactHookFormExample = () => {
       confirmPassword: '',
     },
   });
-  
+
   // Watch specific fields
   const watchedPassword = watch('password');
-  
+
   const onSubmit = async (data) => {
     try {
       console.log('Form Data:', data);
-      
+
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
+
       Alert.alert('Success', 'Form submitted successfully!');
       reset(); // Reset form after successful submission
     } catch (error) {
       Alert.alert('Error', 'Failed to submit form');
     }
   };
-  
+
   const onError = (errors) => {
     console.log('Form Errors:', errors);
   };
-  
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>React Hook Form</Text>
-      
+
       {/* First Name */}
       <View style={styles.fieldContainer}>
         <Text style={styles.label}>First Name</Text>
@@ -161,7 +161,7 @@ const ReactHookFormExample = () => {
           <Text style={styles.errorText}>{errors.firstName.message}</Text>
         )}
       </View>
-      
+
       {/* Last Name */}
       <View style={styles.fieldContainer}>
         <Text style={styles.label}>Last Name</Text>
@@ -182,7 +182,7 @@ const ReactHookFormExample = () => {
           <Text style={styles.errorText}>{errors.lastName.message}</Text>
         )}
       </View>
-      
+
       {/* Email */}
       <View style={styles.fieldContainer}>
         <Text style={styles.label}>Email</Text>
@@ -205,7 +205,7 @@ const ReactHookFormExample = () => {
           <Text style={styles.errorText}>{errors.email.message}</Text>
         )}
       </View>
-      
+
       {/* Age */}
       <View style={styles.fieldContainer}>
         <Text style={styles.label}>Age</Text>
@@ -227,7 +227,7 @@ const ReactHookFormExample = () => {
           <Text style={styles.errorText}>{errors.age.message}</Text>
         )}
       </View>
-      
+
       {/* Password */}
       <View style={styles.fieldContainer}>
         <Text style={styles.label}>Password</Text>
@@ -248,7 +248,7 @@ const ReactHookFormExample = () => {
         {errors.password && (
           <Text style={styles.errorText}>{errors.password.message}</Text>
         )}
-        
+
         {/* Password Strength Indicator */}
         {watchedPassword && (
           <View style={styles.passwordStrength}>
@@ -259,7 +259,7 @@ const ReactHookFormExample = () => {
                   styles.strengthFill,
                   {
                     width: `${Math.min(watchedPassword.length * 10, 100)}%`,
-                    backgroundColor: 
+                    backgroundColor:
                       watchedPassword.length < 6 ? '#ff4444' :
                       watchedPassword.length < 8 ? '#ffaa00' : '#44ff44'
                   }
@@ -269,7 +269,7 @@ const ReactHookFormExample = () => {
           </View>
         )}
       </View>
-      
+
       {/* Confirm Password */}
       <View style={styles.fieldContainer}>
         <Text style={styles.label}>Confirm Password</Text>
@@ -291,7 +291,7 @@ const ReactHookFormExample = () => {
           <Text style={styles.errorText}>{errors.confirmPassword.message}</Text>
         )}
       </View>
-      
+
       {/* Submit Button */}
       <View style={styles.buttonContainer}>
         <Button
@@ -299,14 +299,14 @@ const ReactHookFormExample = () => {
           onPress={handleSubmit(onSubmit, onError)}
           disabled={isSubmitting || !isValid}
         />
-        
+
         <Button
           title="Reset"
           onPress={() => reset()}
           color="#666"
         />
       </View>
-      
+
       {/* Form State Debug */}
       <View style={styles.debugContainer}>
         <Text style={styles.debugTitle}>Form State:</Text>
@@ -414,7 +414,7 @@ export const useAdvancedForm = (schema, options = {}) => {
     mode: 'onChange',
     ...options,
   });
-  
+
   // Custom methods
   const setFieldError = (fieldName, message) => {
     form.setError(fieldName, {
@@ -422,19 +422,19 @@ export const useAdvancedForm = (schema, options = {}) => {
       message,
     });
   };
-  
+
   const clearFieldError = (fieldName) => {
     form.clearErrors(fieldName);
   };
-  
+
   const validateField = async (fieldName) => {
     return await form.trigger(fieldName);
   };
-  
+
   const getFieldState = (fieldName) => {
     const fieldState = form.getFieldState(fieldName);
     const value = form.getValues(fieldName);
-    
+
     return {
       ...fieldState,
       value,
@@ -442,7 +442,7 @@ export const useAdvancedForm = (schema, options = {}) => {
       isEmpty: !value || value.length === 0,
     };
   };
-  
+
   // Auto-save functionality
   const enableAutoSave = (callback, delay = 1000) => {
     const subscription = form.watch((data, { name, type }) => {
@@ -450,14 +450,14 @@ export const useAdvancedForm = (schema, options = {}) => {
         const timeoutId = setTimeout(() => {
           callback(data);
         }, delay);
-        
+
         return () => clearTimeout(timeoutId);
       }
     });
-    
+
     return subscription;
   };
-  
+
   return {
     ...form,
     setFieldError,
@@ -474,24 +474,24 @@ const AdvancedFormExample = () => {
     username: yup.string().required('Username is required'),
     email: yup.string().email().required('Email is required'),
   });
-  
+
   const form = useAdvancedForm(schema);
-  
+
   // Auto-save example
   React.useEffect(() => {
     const unsubscribe = form.enableAutoSave((data) => {
       console.log('Auto-saving:', data);
       // Save to localStorage or API
     });
-    
+
     return unsubscribe;
   }, []);
-  
+
   const checkUsernameAvailability = async (username) => {
     try {
       const response = await fetch(`/api/check-username/${username}`);
       const { available } = await response.json();
-      
+
       if (!available) {
         form.setFieldError('username', 'Username is already taken');
       } else {
@@ -501,7 +501,7 @@ const AdvancedFormExample = () => {
       console.error('Error checking username:', error);
     }
   };
-  
+
   return (
     <View>
       {/* Form implementation */}
@@ -554,20 +554,20 @@ const FormikExample = () => {
     phone: '',
     message: '',
   };
-  
+
   const handleSubmit = async (values, { setSubmitting, resetForm, setFieldError }) => {
     try {
       console.log('Submitting:', values);
-      
+
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
+
       // Simulate server validation error
       if (values.email === 'test@error.com') {
         setFieldError('email', 'This email is already registered');
         return;
       }
-      
+
       Alert.alert('Success', 'Form submitted successfully!');
       resetForm();
     } catch (error) {
@@ -576,11 +576,11 @@ const FormikExample = () => {
       setSubmitting(false);
     }
   };
-  
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Formik Form</Text>
-      
+
       <Formik
         initialValues={initialValues}
         validationSchema={validationSchema}
@@ -617,7 +617,7 @@ const FormikExample = () => {
                 <Text style={styles.errorText}>{errors.name}</Text>
               )}
             </View>
-            
+
             {/* Email Field */}
             <View style={styles.fieldContainer}>
               <Text style={styles.label}>Email</Text>
@@ -637,7 +637,7 @@ const FormikExample = () => {
                 <Text style={styles.errorText}>{errors.email}</Text>
               )}
             </View>
-            
+
             {/* Phone Field */}
             <View style={styles.fieldContainer}>
               <Text style={styles.label}>Phone</Text>
@@ -656,7 +656,7 @@ const FormikExample = () => {
                 <Text style={styles.errorText}>{errors.phone}</Text>
               )}
             </View>
-            
+
             {/* Message Field */}
             <View style={styles.fieldContainer}>
               <Text style={styles.label}>Message</Text>
@@ -677,14 +677,14 @@ const FormikExample = () => {
                 <Text style={styles.errorText}>{errors.message}</Text>
               )}
             </View>
-            
+
             {/* Submit Button */}
             <Button
               title={isSubmitting ? "Submitting..." : "Submit"}
               onPress={handleSubmit}
               disabled={isSubmitting || !isValid || !dirty}
             />
-            
+
             {/* Form State Debug */}
             <View style={styles.debugContainer}>
               <Text style={styles.debugTitle}>Form State:</Text>

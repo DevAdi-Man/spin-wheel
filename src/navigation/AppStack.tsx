@@ -15,7 +15,7 @@ export type RootStackParamList = {
 }
 const Tab = createBottomTabNavigator<RootStackParamList>();
 
-const AppStack = () => {
+const AppTab = () => {
     return (
         <Tab.Navigator tabBar={prop => <TabBar {...prop}/>} screenOptions={{ headerShown: false }}>
             <Tab.Screen name='Home' component={HomeScreen} />
@@ -26,6 +26,5 @@ const AppStack = () => {
     )
 }
 
-export default AppStack
+export default AppTab
 
-const styles = StyleSheet.create({})
